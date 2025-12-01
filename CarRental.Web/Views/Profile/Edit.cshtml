@@ -1,0 +1,155 @@
+@model CarRental.Web.ViewModels.Profile.EditProfileViewModel
+@{
+    ViewData["Title"] = "Редактирование профиля";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <partial name="_ProfileNavigation" />
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">👤 Редактирование профиля</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Уведомления -->
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <!-- Окно с личными данными (бывшая вкладка) -->
+                    <div class="personal-data-section">
+                        <h5 class="mb-4">Личные данные</h5>
+                        
+                        <form method="post" asp-action="Edit">
+                            @Html.AntiForgeryToken()
+
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger">
+                                    <ul class="mb-0">
+                                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                        {
+                                            <li>@error.ErrorMessage</li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="FirstName" class="form-label fw-bold">Имя *</label>
+                                        <input type="text" id="FirstName" name="FirstName" class="form-control" 
+                                               value="@Model?.FirstName" required />
+                                        <span asp-validation-for="FirstName" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="LastName" class="form-label fw-bold">Фамилия *</label>
+                                        <input type="text" id="LastName" name="LastName" class="form-control" 
+                                               value="@Model?.LastName" required />
+                                        <span asp-validation-for="LastName" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="PhoneNumber" class="form-label fw-bold">Номер телефона *</label>
+                                <input type="tel" id="PhoneNumber" name="PhoneNumber" class="form-control" 
+                                    value="@Model?.PhoneNumber" placeholder="+7 (___) ___-__-__" required />
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                                <div class="form-text">Формат: +7 (XXX) XXX-XX-XX</div>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="@Url.Action("Index", "Profile")" class="btn btn-secondary me-md-2">Отмена</a>
+                                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
+    <script>
+        $(document).ready(function() {    
+            $('#PhoneNumber').inputmask({
+                mask: '+7 (999) 999-99-99',
+                placeholder: '_',
+                clearIncomplete: true,
+                showMaskOnHover: true,
+                onBeforeMask: function(value, opts) {
+                    if (!value) return value;
+                    
+                    console.log('Before mask:', value);
+                    
+                    // Убираем все нецифровые символы
+                    let digits = value.replace(/\D/g, '');
+                    
+                    // Сохраняем оригинальное значение для анализа
+                    let originalValue = value;
+                    
+                    // Если вставляется номер, начинающийся с 9, сохраняем это
+                    if (originalValue.includes('9') && digits.length >= 10) {
+                        // Находим позицию первой 9 в оригинальной строке
+                        let firstNineIndex = originalValue.indexOf('9');
+                        if (firstNineIndex >= 0 && firstNineIndex <= 3) {
+                            // Если 9 находится в начале, обрабатываем специально
+                            if (digits.length === 10) {
+                                return digits; // Оставляем как есть - начинается с 9
+                            } else if (digits.length === 11 && digits.startsWith('9')) {
+                                return digits.substring(1); // Убираем лишнюю цифру в начале
+                            }
+                        }
+                    }
+                    
+                    // Стандартная обработка для других случаев
+                    if (digits.length === 11) {
+                        if (digits.startsWith('7') || digits.startsWith('8')) {
+                            return digits.substring(1);
+                        }
+                    } else if (digits.length > 11) {
+                        digits = digits.substring(digits.length - 10);
+                    }
+                    
+                    return digits;
+                }
+            });
+            // Дополнительная обработка для гарантии работы с 9
+            $('#PhoneNumber').on('paste', function(e) {
+                let clipboardData = e.originalEvent.clipboardData || window.clipboardData;
+                let pastedData = clipboardData.getData('Text');
+                
+                if (pastedData && pastedData.includes('9')) {
+                    // Даем время на обработку вставки
+                    setTimeout(() => {
+                        let currentValue = $(this).val();
+                        // Если маска добавила +7 (7, исправляем на +7 (9
+                        if (currentValue && currentValue.startsWith('+7 (7')) {
+                            let correctedValue = '+7 (9' + currentValue.substring(5);
+                            $(this).val(correctedValue);
+                        }
+                    }, 100);
+                }
+            });
+        });
+    
+    </script>
+}

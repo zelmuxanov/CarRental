@@ -1,0 +1,194 @@
+@model IEnumerable<CarRental.BLL.DTOs.Car.CarDto>
+@{
+    ViewData["Title"] = "Каталог автомобилей";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Каталог автомобилей</h1>
+
+    <!-- Улучшенная форма поиска -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="Search" method="get" class="row g-3" id="searchForm">
+                <div class="col-md-4">
+                    <label class="form-label">Марка</label>
+                    <select name="brand" class="form-select" id="brandSelect">
+                        <option value="">Все марки</option>
+                        @if (ViewBag.Brands != null)
+                        {
+                            @foreach (var brand in ViewBag.Brands)
+                            {
+                                var isSelected = ViewBag.CurrentBrand == brand;
+                                <option value="@brand" selected="@isSelected">@brand</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Модель</label>
+                    <select name="model" class="form-select" id="modelSelect">
+                        <option value="">Все модели</option>
+                        @if (ViewBag.Models != null)
+                        {
+                            @foreach (var modelItem in ViewBag.Models)
+                            {
+                                var isSelected = ViewBag.CurrentModel == modelItem;
+                                <option value="@modelItem" selected="@isSelected">@modelItem</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Макс. цена за сутки (₽)</label>
+                    <input type="number" name="maxPrice" class="form-control" placeholder="10000"
+                           value="@ViewBag.CurrentMaxPrice" id="maxPriceInput">
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100 me-2">Поиск</button>
+                </div>
+            </form>
+            
+            <!-- Кнопка сброса фильтров -->
+            @if (ViewBag.HasActiveFilters == true)
+            {
+                <div class="mt-3">
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-sm">
+                        ✖ Сбросить фильтры
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Диагностическая информация -->
+    <div class="alert alert-info @(ViewBag.HasActiveFilters == true ? "" : "d-none")" id="diagnosticInfo">
+        <strong>📊 Фильтры:</strong> 
+        <span id="searchParams">
+            @if (!string.IsNullOrEmpty(ViewBag.CurrentBrand))
+            {
+                <span class="badge bg-primary">Марка: @ViewBag.CurrentBrand</span>
+            }
+            @if (!string.IsNullOrEmpty(ViewBag.CurrentModel))
+            {
+                <span class="badge bg-primary ms-2">Модель: @ViewBag.CurrentModel</span>
+            }
+            @if (!string.IsNullOrEmpty(ViewBag.CurrentMaxPrice))
+            {
+                <span class="badge bg-primary ms-2">Цена до: @ViewBag.CurrentMaxPrice₽/сут</span>
+            }
+        </span>
+        <span class="ms-2">
+            Найдено: <strong>@(Model?.Count() ?? 0)</strong> автомобилей
+        </span>
+    </div>
+
+    <!-- Результаты поиска -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h2 class="mb-3">
+                Доступные автомобили: 
+                <span class="badge bg-primary fs-6">@(Model?.Count() ?? 0)</span>
+            </h2>
+        </div>
+    </div>
+
+    <!-- Список автомобилей -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var car in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 car-card shadow-sm">
+                        @if (!string.IsNullOrEmpty(car.ImageUrl))
+                        {
+                            <img src="@car.ImageUrl" class="card-img-top" alt="@car.Brand @car.Model" 
+                                 style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                 style="height: 200px;">
+                                <span class="text-muted">Нет изображения</span>
+                            </div>
+                        }
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">@car.Brand @car.Model</h5>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    @car.Year год · @car.Class<br>
+                                    @car.Transmission · @car.FuelType<br>
+                                    @car.Seats мест · @car.EngineCapacity л
+                                </small>
+                            </p>
+                            <p class="card-text">
+                                @if (car.IsAvailable)
+                                {
+                                    <span class="badge bg-success">Доступен</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Не доступен</span>
+                                }
+                            </p>
+                            <p class="card-text mt-auto">
+                                <strong class="text-success fs-5">@car.PricePerDay.ToString("C") / сутки</strong>
+                            </p>
+                            <div class="mt-auto">
+                                <a href="@Url.Action("Details", "Car", new { id = car.Id })" 
+                                   class="btn btn-primary w-100">Подробнее</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center py-5">
+            <h4>Автомобили не найдены</h4>
+            <p>Попробуйте изменить критерии поиска или сбросить фильтры.</p>
+            <div class="mt-3">
+                <a href="@Url.Action("Index")" class="btn btn-primary">Показать все автомобили</a>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        console.log("🔍 Search page loaded");
+        console.log("Current brand:", '@ViewBag.CurrentBrand');
+        console.log("Current model:", '@ViewBag.CurrentModel');
+        console.log("Current max price:", '@ViewBag.CurrentMaxPrice');
+        console.log("Has filters:", @(ViewBag.HasActiveFilters == true ? "true" : "false"));
+        console.log("Car count:", @(Model?.Count() ?? 0));
+        
+        // Автоматический поиск при изменении фильтров
+        document.getElementById('brandSelect')?.addEventListener('change', function() {
+            console.log('Brand changed to:', this.value);
+            document.getElementById('searchForm').submit();
+        });
+        
+        document.getElementById('modelSelect')?.addEventListener('change', function() {
+            console.log('Model changed to:', this.value);
+            document.getElementById('searchForm').submit();
+        });
+        
+        document.getElementById('maxPriceInput')?.addEventListener('change', function() {
+            console.log('Max price changed to:', this.value);
+            document.getElementById('searchForm').submit();
+        });
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            if (@(Model?.Count() ?? 0) > 0) {
+                console.log('🎉 Cars loaded successfully');
+            } else {
+                console.log('⚠️ No cars found');
+            }
+        });
+    </script>
+}

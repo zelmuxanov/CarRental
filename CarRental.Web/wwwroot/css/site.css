@@ -1,0 +1,218 @@
+/* Базовые стили */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Навигация */
+.navbar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.navbar-brand {
+    color: white !important;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.navbar-nav .nav-link {
+    color: rgba(255,255,255,0.9) !important;
+}
+
+.navbar-nav .nav-link:hover {
+    color: white !important;
+}
+
+/* Карточки */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+}
+
+/* Кнопки */
+.btn {
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+/* Герой секция */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+}
+
+/* Стили для личного кабинета */
+.profile-nav .list-group-item {
+    border: none;
+    padding: 0.75rem 1rem;
+}
+
+.profile-nav .list-group-item.active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* Анимации для уведомлений */
+.alert {
+    transition: all 0.3s ease;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .profile-stats .card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Стили для навигации профиля */
+.profile-nav .list-group-item {
+    border: none;
+    padding: 0.75rem 1rem;
+    color: #333;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.profile-nav .list-group-item:hover {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+}
+
+.profile-nav .list-group-item.active {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: white !important;
+}
+
+/* Гарантируем что все элементы навигации видны */
+.list-group-item {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Стили для страницы деталей автомобиля */
+.car-details-image {
+    max-height: 400px;
+    object-fit: cover;
+}
+
+.car-details-no-image {
+    height: 400px;
+}
+
+.car-badges .badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.8rem;
+}
+
+.car-specs-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.car-specs-list li {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.car-price {
+    color: #28a745;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* Форма бронирования */
+.booking-form {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.price-display {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #28a745;
+}
+
+.price-breakdown {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.price-breakdown .row {
+    margin-bottom: 5px;
+}
+
+/* Каталог автомобилей */
+.car-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.car-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Формы */
+.form-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.form-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+/* Кнопки */
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .car-details-image,
+    .car-details-no-image {
+        height: 250px;
+    }
+    
+    .car-price {
+        font-size: 1.5rem;
+    }
+    
+    .btn-lg {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+    }
+}
+
+/* Навигация каталога */
+#searchForm .form-select,
+#searchForm .form-control {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+}
+
+/* Анимации */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Бейджи статусов */
+.badge.bg-success { background-color: #28a745 !important; }
+.badge.bg-warning { background-color: #ffc107 !important; color: #212529; }
+.badge.bg-danger { background-color: #dc3545 !important; }
+.badge.bg-info { background-color: #17a2b8 !important; }
+.badge.bg-primary { background-color: #007bff !important; }

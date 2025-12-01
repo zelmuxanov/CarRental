@@ -1,0 +1,30 @@
+<div class="card profile-nav">
+    <div class="card-header">
+        <h5 class="mb-0">Навигация</h5>
+    </div>
+    <div class="list-group list-group-flush">
+        @{
+            var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
+        }
+        <a href="@Url.Action("Index", "Profile")" 
+           class="list-group-item list-group-item-action @(currentAction == "Index" ? "active" : "")">
+            Обзор
+        </a>
+        <a href="@Url.Action("Edit", "Profile")" 
+           class="list-group-item list-group-item-action @(currentAction == "Edit" ? "active" : "")">
+            👤 Редактировать профиль
+        </a>
+        <a href="@Url.Action("Documents", "Profile")" 
+           class="list-group-item list-group-item-action @(currentAction == "Documents" ? "active" : "")">
+            📎 Документы
+        </a>
+        <a href="@Url.Action("Bookings", "Profile")" 
+           class="list-group-item list-group-item-action @(currentAction == "Bookings" ? "active" : "")">
+            Мои бронирования
+        </a>
+        <a href="/Car" 
+           class="list-group-item list-group-item-action">
+            Найти автомобиль
+        </a>
+    </div>
+</div>

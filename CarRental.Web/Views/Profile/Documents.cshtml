@@ -1,0 +1,171 @@
+@model CarRental.Web.ViewModels.Profile.DocumentsViewModel
+@{
+    ViewData["Title"] = "Мои документы";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <partial name="_ProfileNavigation" />
+        </div>
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>📎 Мои документы</h1>
+                @if (Model.CanUploadDocuments)
+                {
+                    <a href="@Url.Action("UploadDocuments", "Profile")" class="btn btn-success">
+                        📤 Загрузить документы
+                    </a>
+                }
+            </div>
+
+            <!-- Уведомления -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Статус верификации -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">📋 Статус верификации</h5>
+                </div>
+                <div class="card-body">
+                    @{
+                        var statusInfo = GetStatusInfo(Model.Documents.VerificationStatus);
+                    }
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 fs-1">@statusInfo.Icon</div>
+                        <div>
+                            <h5 class="mb-1">Статус: <span class="badge bg-@statusInfo.BadgeColor">@statusInfo.Text</span></h5>
+                            <p class="mb-0 text-muted">@statusInfo.Description</p>
+                            @if (Model.Documents.DocumentsVerifiedAt.HasValue)
+                            {
+                                <small class="text-muted">Проверено: @Model.Documents.DocumentsVerifiedAt.Value.ToString("dd.MM.yyyy HH:mm")</small>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Информация о документах -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">📄 Загруженные документы</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Водительское удостоверение -->
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6>🚗 Водительское удостоверение</h6>
+                                @if (!string.IsNullOrEmpty(Model.Documents.DriverLicenseNumber))
+                                {
+                                    <p class="mb-1"><strong>Номер:</strong> @Model.Documents.DriverLicenseNumber</p>
+                                    <p class="mb-1"><strong>Срок действия:</strong> 
+                                        @Model.Documents.DriverLicenseExpiry?.ToString("dd.MM.yyyy")</p>
+                                    <span class="badge bg-success">✅ Загружено</span>
+                                }
+                                else
+                                {
+                                    <p class="text-muted mb-1">Документ не загружен</p>
+                                    <span class="badge bg-secondary">❌ Отсутствует</span>
+                                }
+                            </div>
+                            @if (string.IsNullOrEmpty(Model.Documents.DriverLicenseNumber))
+                            {
+                                <a href="@Url.Action("UploadDocuments", "Profile")" class="btn btn-sm btn-outline-primary">
+                                    Загрузить
+                                </a>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Паспорт -->
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6>🆔 Паспорт</h6>
+                                @if (Model.Documents.HasPassport)
+                                {
+                                    <span class="badge bg-success">✅ Загружено</span>
+                                }
+                                else
+                                {
+                                    <p class="text-muted mb-1">Документ не загружен</p>
+                                    <span class="badge bg-secondary">❌ Отсутствует</span>
+                                }
+                            </div>
+                            @if (!Model.Documents.HasPassport)
+                            {
+                                <a href="@Url.Action("UploadDocuments", "Profile")" class="btn btn-sm btn-outline-primary">
+                                    Загрузить
+                                </a>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Информация о требованиях -->
+                    <div class="alert alert-info mt-3">
+                        <h6>ℹ️ Требования к документам:</h6>
+                        <ul class="mb-0">
+                            <li>Водительское удостоверение должно быть действующим</li>
+                            <li>Минимальный стаж вождения - 2 года</li>
+                            <li>Минимальный возраст - 23 года</li>
+                            <li>Все документы должны быть четкими и читаемыми</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public class StatusInfo
+    {
+        public string Icon { get; set; } = string.Empty;
+        public string Text { get; set; } = string.Empty;
+        public string BadgeColor { get; set; } = "secondary";
+        public string Description { get; set; } = string.Empty;
+    }
+
+    StatusInfo GetStatusInfo(string status)
+    {
+        return status switch
+        {
+            "Verified" => new StatusInfo 
+            { 
+                Icon = "✅", 
+                Text = "Верифицирован", 
+                BadgeColor = "success",
+                Description = "Ваши документы проверены и одобрены"
+            },
+            "Pending" => new StatusInfo 
+            { 
+                Icon = "⏳", 
+                Text = "На проверке", 
+                BadgeColor = "warning",
+                Description = "Ваши документы находятся на проверке администратором"
+            },
+            "Rejected" => new StatusInfo 
+            { 
+                Icon = "❌", 
+                Text = "Отклонено", 
+                BadgeColor = "danger",
+                Description = "Требуется повторная загрузка документов"
+            },
+            _ => new StatusInfo 
+            { 
+                Icon = "📝", 
+                Text = "Не загружено", 
+                BadgeColor = "secondary",
+                Description = "Загрузите документы для верификации аккаунта"
+            }
+        };
+    }
+}

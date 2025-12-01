@@ -1,0 +1,30 @@
+@{
+    ViewData["Title"] = "Простая регистрация";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2>Простая регистрация (тест)</h2>
+            <form method="post" action="/Account/Register">
+                @Html.AntiForgeryToken()
+                <div class="mb-3">
+                    <input type="text" name="FirstName" class="form-control" placeholder="Имя" required>
+                </div>
+                <div class="mb-3">
+                    <input type="text" name="LastName" class="form-control" placeholder="Фамилия" required>
+                </div>
+                <div class="mb-3">
+                    <input type="email" name="Email" class="form-control" placeholder="Email" required>
+                </div>
+                <div class="mb-3">
+                    <input type="password" name="Password" class="form-control" placeholder="Пароль" required>
+                </div>
+                <div class="mb-3">
+                    <input type="password" name="ConfirmPassword" class="form-control" placeholder="Подтверждение пароля" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+            </form>
+        </div>
+    </div>
+</div>

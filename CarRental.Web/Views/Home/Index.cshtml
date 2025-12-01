@@ -1,0 +1,126 @@
+@model IEnumerable<CarRental.BLL.DTOs.Car.CarDto>
+
+@{
+    ViewData["Title"] = "CarRental - Аренда автомобилей";
+    Layout = "_Layout"; // ✅ Явно указываем layout
+}
+
+<div class="container mt-4">
+    <!-- Герой секция -->
+    <div class="hero-section text-center mb-5 p-5 bg-primary text-white rounded">
+        <h1 class="display-4 fw-bold">CarRental</h1>
+        <p class="lead">Арендуйте лучшие автомобили по выгодным ценам</p>
+        
+        @if (User?.Identity?.IsAuthenticated == true)
+        {
+            <div class="mt-4">
+                <a href="/Car" class="btn btn-success btn-lg me-3">Найти автомобиль</a>
+            </div>
+        }
+        else
+        {
+            <div class="mt-4">
+                <a href="/Account/Register" class="btn btn-success btn-lg me-3">Начать аренду</a>
+                <a href="/Account/Login" class="btn btn-outline-light btn-lg">Войти</a>
+                <a href="/Car" class="btn btn-light btn-lg ms-3">Каталог авто</a>
+            </div>
+        }
+    </div>
+
+    <!-- Быстрые действия -->
+    <div class="row mb-5">
+        <div class="col-md-4 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-primary mb-3">🚙</div>
+                    <h5>Широкий выбор</h5>
+                    <p class="text-muted">Автомобили разных классов и марок</p>
+                    <a href="/Car" class="btn btn-outline-primary">Смотреть все</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-success mb-3">💰</div>
+                    <h5>Выгодные цены</h5>
+                    <p class="text-muted">Лучшие цены на рынке аренды</p>
+                    <a href="/Car" class="btn btn-outline-success">Узнать цены</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-warning mb-3">⚡</div>
+                    <h5>Быстрое оформление</h5>
+                    <p class="text-muted">Процесс аренды за 5 минут</p>
+                    <a href="/Account/Register" class="btn btn-outline-warning">Начать</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Популярные автомобили -->
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4 text-center">🔥 Популярные автомобили</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var car in Model.Take(3))
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">@car.Brand @car.Model</h5>
+                            <p class="card-text">
+                                <strong>@car.Year год</strong><br>
+                                <small class="text-muted">
+                                    Класс: @car.Class<br>
+                                    Трансмиссия: @car.Transmission<br>
+                                    Топливо: @car.FuelType
+                                </small>
+                            </p>
+                            @if (car.IsAvailable)
+                            {
+                                <span class="badge bg-success">Доступен</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Занят</span>
+                            }
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h5 text-success mb-0">@car.PricePerDay ₽/день</span>
+                                <a href="/Car/Details/@car.Id" class="btn btn-primary btn-sm">Подробнее</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="alert alert-warning text-center">
+                    <h4>Автомобилей пока нет</h4>
+                    <p>Но мы активно работаем над пополнением автопарка!</p>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (Model != null && Model.Count() > 3)
+    {
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="/Car" class="btn btn-primary btn-lg">Показать все автомобили (@Model.Count())</a>
+            </div>
+        </div>
+    }
+</div>

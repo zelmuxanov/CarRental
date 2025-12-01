@@ -1,0 +1,138 @@
+@model CarRental.Web.ViewModels.Profile.ProfileViewModel
+@{
+    ViewData["Title"] = "Личный кабинет";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Боковая навигация -->
+        <div class="col-md-3">
+            <partial name="_ProfileNavigation" />
+        </div>
+
+        <!-- Основной контент -->
+        <div class="col-md-9">
+            <!-- Уведомления -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Приветствие и статус -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Добро пожаловать, @Model.UserProfile.FirstName!</h1>
+                <span class="badge bg-@(Model.VerificationInfo.IsVerified ? "success" : "warning") fs-6">
+                    @(Model.VerificationInfo.IsVerified ? "✅ Верифицирован" : "⏳ Ожидает верификации")
+                </span>
+            </div>
+
+            <!-- Статистика -->
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">@Model.TotalBookingsCount</h5>
+                            <p class="card-text">Всего бронирований</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">@Model.UpcomingBookings.Count()</h5>
+                            <p class="card-text">Предстоящих поездок</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-info">@Model.UserProfile.DrivingExperience</h5>
+                            <p class="card-text">Лет стажа вождения</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Информация о пользователе -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">👤 Личная информация</h5>
+                    <a href="@Url.Action("ChangePassword", "Profile")" class="btn btn-outline-primary btn-sm">
+                        🔐 Сменить пароль
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Имя:</strong> @Model.UserProfile.FirstName</p>
+                            <p><strong>Фамилия:</strong> @Model.UserProfile.LastName</p>
+                            <p><strong>Email:</strong> @Model.UserProfile.Email</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Телефон:</strong> @(Model.UserProfile.PhoneNumber ?? "Не указан")</p>
+                            <p><strong>Дата рождения:</strong> @Model.UserProfile.BirthDate.ToString("dd.MM.yyyy")</p>
+                            <p><strong>Статус:</strong> @Model.VerificationInfo.Status</p>
+                        </div>
+                    </div>
+                    <a href="@Url.Action("Edit", "Profile")" class="btn btn-primary mt-2">Редактировать профиль</a>
+                </div>
+            </div>
+
+            <!-- Ближайшие бронирования -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">🗓️ Ближайшие бронирования</h5>
+                    <a href="@Url.Action("Bookings", "Profile")" class="btn btn-sm btn-outline-primary">Все бронирования</a>
+                </div>
+                <div class="card-body">
+                    @if (Model.UpcomingBookings.Any())
+                    {
+                        foreach (var booking in Model.UpcomingBookings)
+                        {
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>@booking.Car?.Brand @booking.Car?.Model</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            @booking.StartDate.ToString("dd.MM.yyyy") - @booking.EndDate.ToString("dd.MM.yyyy")
+                                        </small>
+                                        <br>
+                                        <span class="text-success fw-bold">@booking.TotalPrice.ToString("C")</span>
+                                    </div>
+                                    <span class="badge bg-@GetStatusBadgeColor(booking.Status)">
+                                        @booking.Status
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">У вас нет предстоящих бронирований</p>
+                        <a href="/Car" class="btn btn-success">Найти автомобиль</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeColor(CarRental.Domain.Enums.BookingStatus status)
+    {
+        return status switch
+        {
+            CarRental.Domain.Enums.BookingStatus.Confirmed => "success",
+            CarRental.Domain.Enums.BookingStatus.Pending => "warning",
+            CarRental.Domain.Enums.BookingStatus.Completed => "info",
+            CarRental.Domain.Enums.BookingStatus.Cancelled => "danger",
+            _ => "secondary"
+        };
+    }
+}

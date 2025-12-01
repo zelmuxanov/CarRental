@@ -1,0 +1,117 @@
+@model CarRental.Web.ViewModels.Profile.DocumentUploadViewModel
+@{
+    ViewData["Title"] = "Загрузка документов";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <partial name="_ProfileNavigation" />
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">📤 Загрузка документов</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h6>⚠️ Внимание!</h6>
+                        <p class="mb-0">После загрузки документов ваш аккаунт будет отправлен на проверку. Вы не сможете редактировать документы до завершения проверки.</p>
+                    </div>
+
+                    <form method="post" asp-action="UploadDocuments" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                    {
+                                        <li>@error.ErrorMessage</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+
+                        <h5 class="mb-3">🚗 Водительское удостоверение</h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="DriverLicenseNumber" class="form-label fw-bold">Номер водительского удостоверения *</label>
+                                    <input type="text" id="DriverLicenseNumber" name="DriverLicenseNumber" 
+                                           class="form-control" value="@Model.DriverLicenseNumber" required />
+                                    <span asp-validation-for="DriverLicenseNumber" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="DriverLicenseExpiry" class="form-label fw-bold">Срок действия *</label>
+                                    <input type="date" id="DriverLicenseExpiry" name="DriverLicenseExpiry" 
+                                           class="form-control" value="@Model.DriverLicenseExpiry?.ToString("yyyy-MM-dd")" required />
+                                    <span asp-validation-for="DriverLicenseExpiry" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="DriverLicenseScan" class="form-label fw-bold">Скан водительского удостоверения</label>
+                            <input type="file" id="DriverLicenseScan" name="DriverLicenseScan" 
+                                   class="form-control" accept=".jpg,.jpeg,.png,.pdf" />
+                            <div class="form-text">Формат: JPG, PNG, PDF. Максимальный размер: 5MB</div>
+                        </div>
+
+                        <h5 class="mb-3 mt-4">🆔 Паспорт</h5>
+
+                        <div class="mb-3">
+                            <label for="PassportScan" class="form-label fw-bold">Скан паспорта (разворот с фото)</label>
+                            <input type="file" id="PassportScan" name="PassportScan" 
+                                   class="form-control" accept=".jpg,.jpeg,.png,.pdf" />
+                            <div class="form-text">Формат: JPG, PNG, PDF. Максимальный размер: 5MB</div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="@Url.Action("Documents", "Profile")" class="btn btn-secondary me-md-2">Отмена</a>
+                            <button type="submit" class="btn btn-primary">Отправить на проверку</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    
+    <script>
+        // Валидация даты (должна быть в будущем)
+        document.getElementById('DriverLicenseExpiry')?.addEventListener('change', function() {
+            const selectedDate = new Date(this.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (selectedDate <= today) {
+                this.setCustomValidity('Срок действия должен быть в будущем');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Валидация размера файлов
+        document.querySelectorAll('input[type="file"]').forEach(input => {
+            input.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file && file.size > 5 * 1024 * 1024) { // 5MB
+                    this.setCustomValidity('Файл слишком большой. Максимальный размер: 5MB');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+        });
+    </script>
+}
